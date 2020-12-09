@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sunnyday.healiostest.R
+import com.sunnyday.healiostest.database.entity.Comment
+import com.sunnyday.healiostest.database.entity.User
 import com.sunnyday.healiostest.databinding.ActivityPostDetailsBinding
 
 class PostDetailsActivity : AppCompatActivity() {
@@ -31,21 +33,8 @@ class PostDetailsActivity : AppCompatActivity() {
             this,
             MyViewModelFactory(this.application, intent.getParcelableExtra(PARAM_POST)!!)
         ).get(PostDetailsViewModel::class.java)
-        mViewModel.getUserData().observe(this, { user ->
-            run {
-                if (user == null)
-                    mViewModel.loadUserData()
-                else
-                    mBinding.tvUserName.text = user.name
-            }
-        })
-        mViewModel.getCommentsData().observe(this, { comments ->
-            run {
-                if (comments != null && comments.isEmpty())
-                    mViewModel.loadCommentsData()
-                mAdapter.setData(comments)
-            }
-        })
+        mViewModel.getUserData().observe(this, { user -> displayUserData(user) })
+        mViewModel.getCommentsData().observe(this, { comments -> displayCommentsData(comments) })
     }
 
     private fun setContent() {
@@ -68,6 +57,26 @@ class PostDetailsActivity : AppCompatActivity() {
                 )
             )
             it.adapter = mAdapter
+        }
+    }
+
+    private fun displayUserData(user: User?) {
+        run {
+            if (user == null) {
+                mViewModel.loadUserData()
+            } else {
+                mBinding.tvUserName.text = user.name
+            }
+        }
+    }
+
+    private fun displayCommentsData(comments: List<Comment>) {
+        run {
+            if (comments.isEmpty()) {
+                mViewModel.loadCommentsData()
+            } else {
+                mAdapter.setData(comments)
+            }
         }
     }
 }
